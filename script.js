@@ -152,8 +152,8 @@ const translations = {
     footerRight: "code · design · lead · create",
     sectionLabelMedia: "Motion Graphics & Showreel",
     sectionTitleMedia: "Edició <span>&</span> Producció Audiovisual",
-    v1Title: "Composició After Effects", v2Title: "Render Anunci Comercial", v3Title: "Bucle Animació Banner",
-    v4Title: "Showreel Premiere Pro", v5Title: "VFX Tipografia Dinàmica", v6Title: "Presentació d'Interfície Web"
+    v1Title: "Animació de bàners After Effects", v2Title: "Anunci d'esmorzar", v3Title: "Entrevista d'anunci de restaurant",
+    v4Title: "Explicació de vídeo TrueNas", v5Title: "Construcció d'una escena en AE", v6Title: "Presentació de plats", v7Title: "Animació de mapa"
   },
   es: {
     pageTitle: "Adil Chainakh — Desarrollador Web",
@@ -224,8 +224,8 @@ const translations = {
     footerRight: "code · design · lead · create",
     sectionLabelMedia: "Motion Graphics & Showreel",
     sectionTitleMedia: "Edición <span>&</span> Producción Audiovisual",
-    v1Title: "Composición After Effects", v2Title: "Render Anuncio Comercial", v3Title: "Bucle Animación Banner",
-    v4Title: "Showreel Premiere Pro", v5Title: "VFX Tipografía Dinámica", v6Title: "Presentación de Interfaz Web"
+    v1Title: "Animación de banner en After Effects", v2Title: "Anuncio de desayuno", v3Title: "Entrevista para anuncio de restaurante",
+    v4Title: "Vídeo explicativo de TrueNas", v5Title: "Creación de una escena en After Effects", v6Title: "Presentación de plato", v7Title: "Animación de mapa"
   },
   en: {
     pageTitle: "Adil Chainakh — Web Developer",
@@ -296,8 +296,8 @@ const translations = {
     footerRight: "code · design · lead · create",
     sectionLabelMedia: "Motion & Video Production",
     sectionTitleMedia: "Motion <span>&</span> Video Production",
-    v1Title: "After Effects Composition", v2Title: "Commercial Ad Rendering", v3Title: "Motion Banner Loop",
-    v4Title: "Premiere Pro Showreel", v5Title: "Dynamic Typography VFX", v6Title: "Interface Presentation Wrap"
+    v1Title: "Banner Animation After Effects", v2Title: "Breakfast Commercial", v3Title: "Restaurant Ad Interview",
+    v4Title: "TrueNas Video Explanator", v5Title: "Building up a scene in AE", v6Title: "Dish Presentation", v7Title: "Map Animation"
   }
 };
 
@@ -385,7 +385,7 @@ function applyLang(lang) {
   // Video Section Strings
   safeText('[data-i18n="sectionLabelMedia"]', t.sectionLabelMedia);
   safeHTML('[data-i18n="sectionTitleMedia"]', t.sectionTitleMedia);
-  for (let v = 1; v <= 6; v++) { safeText(`[data-i18n="v${v}Title"]`, t[`v${v}Title`]); }
+  for (let v = 1; v <= 7; v++) { safeText(`[data-i18n="v${v}Title"]`, t[`v${v}Title`]); }
 
   // Contact Footer Block
   safeText('[data-i18n="sectionLabelContact"]', t.sectionLabelContact);
@@ -592,40 +592,61 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ─── HAND-CRAFTED MOUSE/TOUCH DRAGGABLE CAROUSEL ENGINE ──────
+// ─── HAND-CRAFTED MOUSE/TOUCH DRAGGABLE CAROUSEL ENGINE ──────
 function initDraggableCarousel() {
-  const track = document.getElementById('videoTrack');
   const wrapper = document.querySelector('.slider-wrapper');
-  if (!track || !wrapper) return;
+  const track = document.getElementById('videoTrack');
+  const scrollBar = document.getElementById('carouselScrollBar');
+  if (!wrapper || !track || !scrollBar) return;
 
   let isDragging = false;
-  let startX, scrollLeft;
+  let startX;
   let animationId;
-  let autoplaySpeed = 0.5;
+  let autoplaySpeed = 0.4;
   let currentTransform = 0;
   let isHovered = false;
 
-  // Track layout parameters to build loops
-  let trackWidth = track.offsetWidth;
+  // Calculate maximum allowed negative transform bound dynamically
+  const getMaxScroll = () => -(track.scrollWidth - wrapper.clientWidth);
 
+  // Sync range slider position with current transform percentage
+  function updateSliderThumb() {
+    const maxScroll = getMaxScroll();
+    if (maxScroll < 0) {
+      scrollBar.value = (currentTransform / maxScroll) * 100;
+    }
+  }
+
+  // Continuous Autoplay Loop using translate3d
   function autoPlayLoop() {
     if (!isDragging && !isHovered) {
       currentTransform -= autoplaySpeed;
+      const maxScroll = getMaxScroll();
 
-      // Infinite bounce check logic reset variables if running out of boundary limits
-      const maxScroll = -(track.scrollWidth - wrapper.clientWidth);
       if (currentTransform <= maxScroll) {
         currentTransform = 0;
       }
       track.style.transform = `translate3d(${currentTransform}px, 0px, 0px)`;
+      updateSliderThumb();
     }
     animationId = requestAnimationFrame(autoPlayLoop);
   }
   animationId = requestAnimationFrame(autoPlayLoop);
 
+  // Manual input handling on the range slider bar
+  scrollBar.addEventListener('input', () => {
+    const maxScroll = getMaxScroll();
+    currentTransform = (scrollBar.value / 100) * maxScroll;
+    track.style.transform = `translate3d(${currentTransform}px, 0px, 0px)`;
+  });
+
+  // Toggle flags on hover to safely pause loop execution
   wrapper.addEventListener('mouseenter', () => isHovered = true);
   wrapper.addEventListener('mouseleave', () => { if (!isDragging) isHovered = false; });
+  scrollBar.addEventListener('mouseenter', () => isHovered = true);
+  scrollBar.addEventListener('mouseleave', () => isHovered = false);
 
-  // Mouse Input Parsers
+  // Mouse Input Engine Drivers
   wrapper.addEventListener('mousedown', (e) => {
     isDragging = true;
     startX = e.pageX - currentTransform;
@@ -644,14 +665,14 @@ function initDraggableCarousel() {
     e.preventDefault();
     const x = e.pageX;
     const walk = x - startX;
+    const maxScroll = getMaxScroll();
 
-    // Bounds boundaries constraint calculations
-    const maxScroll = -(track.scrollWidth - wrapper.clientWidth);
     currentTransform = Math.min(0, Math.max(walk, maxScroll));
     track.style.transform = `translate3d(${currentTransform}px, 0px, 0px)`;
+    updateSliderThumb();
   });
 
-  // Touch Input Mobile Parsers
+  // Mobile Touch Input Engine Drivers
   wrapper.addEventListener('touchstart', (e) => {
     isDragging = true;
     startX = e.touches[0].pageX - currentTransform;
@@ -668,9 +689,11 @@ function initDraggableCarousel() {
     if (!isDragging) return;
     const x = e.touches[0].pageX;
     const walk = x - startX;
-    const maxScroll = -(track.scrollWidth - wrapper.clientWidth);
+    const maxScroll = getMaxScroll();
+
     currentTransform = Math.min(0, Math.max(walk, maxScroll));
     track.style.transform = `translate3d(${currentTransform}px, 0px, 0px)`;
+    updateSliderThumb();
   });
 }
 

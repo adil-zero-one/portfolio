@@ -1107,7 +1107,7 @@ footer span {
 
 /* Custom dark red theme for restricted codebases */
 .btn-private-repo {
-    background-color: #581c20 !important; 
+    background-color: #581c20 !important;
     border-color: #8c2a30 !important;
     opacity: 0.85;
     cursor: not-allowed !important;
@@ -1117,4 +1117,65 @@ footer span {
 .btn-private-repo:hover {
     background-color: #6b2126 !important;
     border-color: #a13138 !important;
+}
+
+/* Slider Container Positioning */
+.carousel-slider-container {
+    width: 100%;
+    max-width: 400px;
+    margin: 20px auto 0 auto;
+    padding: 0 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Custom Clean Nav Slider Styling */
+.carousel-nav-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    background: var(--dark3, #161b22);
+    border-radius: 2px;
+    outline: none;
+    transition: background 0.2s;
+}
+
+/* Hover Accentuation */
+.carousel-nav-slider:hover {
+    background: var(--text-muted, #3d4a5c);
+}
+
+/* Webkit Native Slider Handle Details */
+.carousel-nav-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 45px;
+    height: 6px;
+    background: var(--gold, #C9A84C);
+    border-radius: 3px;
+    cursor: pointer;
+    transition: transform 0.15s ease, background-color 0.15s;
+}
+
+.carousel-nav-slider::-webkit-slider-thumb:hover {
+    background: var(--gold-light, #e8c96d);
+    transform: scaleY(1.3);
+}
+
+/* Firefox Native Slider Handle Details */
+.carousel-nav-slider::-moz-range-thumb {
+    width: 45px;
+    height: 6px;
+    background: var(--gold, #C9A84C);
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: transform 0.15s ease, background-color 0.15s;
+}
+
+.carousel-nav-slider::-moz-range-thumb:hover {
+    background: var(--gold-light, #e8c96d);
+    transform: scaleY(1.3);
 }
