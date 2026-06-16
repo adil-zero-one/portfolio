@@ -495,16 +495,16 @@ function openProjectModal(key) {
   document.getElementById('modal-project-title').textContent = data.title[currentLang];
   document.getElementById('modal-project-stack').textContent = data.stack;
   document.getElementById('modal-project-desc').textContent = data.desc[currentAppLanguage] || data.desc['ca'];
-  
+
   const repoButton = document.getElementById('modal-project-codebase');
   if (repoButton) {
     // Target the text container inside the link box so the logo isn't altered
     const repoTextSpan = repoButton.querySelector('.contact-link-text');
-    
+
     if (data.repo === "private") {
       repoButton.removeAttribute("href");
       repoButton.classList.add("btn-private-repo");
-      
+
       // Update text dynamically matching your language status
       if (currentLang === "ca") repoTextSpan.textContent = "Repositori Privat";
       else if (currentLang === "es") repoTextSpan.textContent = "Repositorio Privado";
@@ -512,7 +512,7 @@ function openProjectModal(key) {
     } else {
       repoButton.href = data.repo;
       repoButton.classList.remove("btn-private-repo");
-      
+
       // Restore standard action text dynamically 
       if (currentLang === "ca") repoTextSpan.textContent = "Inspecturar Repositori";
       else if (currentLang === "es") repoTextSpan.textContent = "Inspeccionar Repositorio";
@@ -698,6 +698,11 @@ function initDraggableCarousel() {
 }
 
 // ─── SCROLL REVEAL (FIRE ONCE ONLY) ───────────────────────────
+// ========================================================
+// REPARACIÓN COMPLETA DE ANIMACIONES DE ENTRADA (GSAP & OBSERVER CORREGIDO)
+// ========================================================
+
+// ─── SCROLL REVEAL (FIRE ONCE ONLY) ───────────────────────────
 function initScrollReveal() {
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
@@ -713,4 +718,211 @@ function initScrollReveal() {
   });
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initScrollReveal); } else { initScrollReveal(); }
+
+
+// ========================================================
+// CONFIGURACIÓN DEL CHATBOT TRILINGÜE (INTEGRADO)
+// ========================================================
+document.addEventListener("DOMContentLoaded", () => {
+
+  // Base de datos de conversación del asistente
+  const botDatabase = {
+    es: {
+      toggleText: "💬 Habla con mi asistente",
+      welcome: "¡Hola! Soy el asistente de Adil. ¿Qué te gustaría conocer sobre su perfil técnico?",
+      autoWhatsAppMessage: "Hola Adil, he estado viendo tu portfolio y me gustaría ponerme en contacto contigo para hablar de un proyecto.",
+      options: [
+        { text: "💻 Ver Proyectos de Desarrollo", next: "projects" },
+        { text: "📈 Estrategias de Marketing", next: "marketing" },
+        { text: "🚀 Hablar con él en WhatsApp", next: "direct_whatsapp" }
+      ],
+      projects: {
+        text: "Adil trabaja con tecnologías como Java, JavaScript y Python, enfocándose en código limpio y automatizaciones. ¿Qué deseas ver ahora?",
+        options: [
+          { text: "📂 Ir a su repositorio de GitHub", next: "github" },
+          { text: "💬 Enviar un WhatsApp directo", next: "direct_whatsapp" }
+        ]
+      },
+      marketing: {
+        text: "Combina el desarrollo técnico con el Marketing Digital: optimización de conversiones, analítica de datos e impacto de negocio enfocado al producto.",
+        options: [
+          { text: "💼 Hablar de un proyecto por WhatsApp", next: "direct_whatsapp" }
+        ]
+      }
+    },
+    ca: {
+      toggleText: "💬 Parla amb el meu assistent",
+      welcome: "Hola! Sóc l'assistent virtual de l'Adil. Què t'agradaria saber sobre el seu perfil tècnic?",
+      autoWhatsAppMessage: "Hola Adil, he estat mirant el teu portfolio i m'agradaria posar-me en contacte amb tu per parlar d'un projecte.",
+      options: [
+        { text: "💻 Veure Projectes de Desenvolupament", next: "projects" },
+        { text: "📈 Estratègies de Màrqueting", next: "marketing" },
+        { text: "🚀 Parlar amb ell per WhatsApp", next: "direct_whatsapp" }
+      ],
+      projects: {
+        text: "L'Adil domina tecnologies com Java, JavaScript i Python. Desenvolupa codi net i automatitzacions eficients. Què vols comprovar?",
+        options: [
+          { text: "📂 Anar al seu repositori de GitHub", next: "github" },
+          { text: "💬 Enviar un WhatsApp directe", next: "direct_whatsapp" }
+        ]
+      },
+      marketing: {
+        text: "Combina el desenvolupament amb el Màrqueting Digital: optimització de conversions, analítica tècnica i impacte de negoci.",
+        options: [
+          { text: "💼 Parlar d'un projecte per WhatsApp", next: "direct_whatsapp" }
+        ]
+      }
+    },
+    en: {
+      toggleText: "💬 Talk to my assistant",
+      welcome: "Hi! I am Adil's virtual assistant. What would you like to know about his technical skills?",
+      autoWhatsAppMessage: "Hi Adil, I was checking out your portfolio and I would like to connect with you regarding a project.",
+      options: [
+        { text: "💻 View Development Projects", next: "projects" },
+        { text: "📈 Marketing Strategies", next: "marketing" },
+        { text: "🚀 Chat with him on WhatsApp", next: "direct_whatsapp" }
+      ],
+      projects: {
+        text: "Adil develops with Java, JavaScript, and Python, focusing on clean code and performance automation. What's next?",
+        options: [
+          { text: "📂 Open his GitHub Profile", next: "github" },
+          { text: "💬 Send a direct WhatsApp", next: "direct_whatsapp" }
+        ]
+      },
+      marketing: {
+        text: "He blends software development with Digital Marketing: technical data analytics, SEO/SEM performance, and growth strategies.",
+        options: [
+          { text: "💼 Discuss a project on WhatsApp", next: "direct_whatsapp" }
+        ]
+      }
+    }
+  };
+
+  const chatToggle = document.getElementById("chat-toggle");
+  const chatBox = document.getElementById("chat-box");
+  const chatMessages = document.getElementById("chat-messages");
+  const chatOptions = document.getElementById("chat-options");
+
+  let isChatInitialized = false;
+
+  // ACTUALIZACIÓN COMPLETA DEL BOTÓN (ICONO A LA IZQUIERDA)
+  function syncAssistantLanguage() {
+    // Leemos el idioma activo directamente de tu motor principal (currentAppLanguage)
+    const activeLang = typeof currentAppLanguage !== 'undefined' ? currentAppLanguage : 'ca';
+    const langData = botDatabase[activeLang] || botDatabase['ca'];
+
+    if (chatToggle) {
+      // Icono estrictamente a la izquierda del contenedor de texto
+      chatToggle.innerHTML = `<i class="fas fa-comments" style="margin-right: 8px;"></i><span class="toggle-text">${langData.toggleText}</span>`;
+    }
+
+    // Si el chat ya está abierto y el usuario cambia de idioma, reiniciamos el flujo visible de forma fluida
+    if (chatBox && chatBox.classList.contains("active")) {
+      chatMessages.innerHTML = "";
+      const data = botDatabase[activeLang] || botDatabase['ca'];
+      renderMessage(data.welcome, "bot");
+      renderOptions(data.options);
+    }
+  }
+
+  // Interceptamos la función applyLang de tu portfolio para enterarnos de los cambios de idioma en tiempo real
+  const originalApplyLang = window.applyLang;
+  if (typeof window.applyLang === 'function') {
+    window.applyLang = function (lang) {
+      originalApplyLang(lang);
+      syncAssistantLanguage();
+    };
+  } else {
+    // Si no está global, nos acoplamos a los botones de selección nativos directamente
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        setTimeout(syncAssistantLanguage, 50);
+      });
+    });
+  }
+
+  // Ejecución inicial limpia
+  setTimeout(syncAssistantLanguage, 100);
+
+  // Toggle Ventana de Chat (Mantiene animaciones GSAP controladas)
+  if (chatToggle && chatBox) {
+    chatToggle.addEventListener("click", () => {
+      syncAssistantLanguage();
+
+      if (!chatBox.classList.contains("active")) {
+        chatBox.classList.add("active");
+        if (typeof gsap !== "undefined") {
+          gsap.to(chatBox, { opacity: 1, y: 0, duration: 0.3, ease: "power2.out" });
+        } else {
+          chatBox.style.opacity = "1";
+          chatBox.style.transform = "translateY(0)";
+        }
+
+        chatMessages.innerHTML = "";
+        const activeLang = typeof currentAppLanguage !== 'undefined' ? currentAppLanguage : 'ca';
+        const data = botDatabase[activeLang] || botDatabase['ca'];
+        renderMessage(data.welcome, "bot");
+        renderOptions(data.options);
+      } else {
+        if (typeof gsap !== "undefined") {
+          gsap.to(chatBox, {
+            opacity: 0, y: 15, duration: 0.2, ease: "power2.in", onComplete: () => {
+              chatBox.classList.remove("active");
+            }
+          });
+        } else {
+          chatBox.classList.remove("active");
+        }
+      }
+    });
+  }
+
+  function renderMessage(text, sender) {
+    if (!chatMessages) return;
+    const msg = document.createElement("div");
+    msg.className = `message ${sender}`;
+    msg.innerText = text;
+    chatMessages.appendChild(msg);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function renderOptions(optionsArray) {
+    if (!chatOptions) return;
+    chatOptions.innerHTML = "";
+    optionsArray.forEach(option => {
+      const btn = document.createElement("button");
+      btn.innerText = option.text;
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        handleRoute(option);
+      });
+      chatOptions.appendChild(btn);
+    });
+  }
+
+  function handleRoute(selectedOption) {
+    renderMessage(selectedOption.text, "user");
+    const activeLang = typeof currentAppLanguage !== 'undefined' ? currentAppLanguage : 'ca';
+    const langData = botDatabase[activeLang] || botDatabase['ca'];
+
+    if (selectedOption.next === "direct_whatsapp") {
+      executeWhatsAppRedirect(langData.autoWhatsAppMessage);
+    } else if (selectedOption.next === "github") {
+      window.open("https://github.com/adil-zero-one", "_blank");
+    } else if (langData[selectedOption.next]) {
+      setTimeout(() => {
+        const nextStep = langData[selectedOption.next];
+        renderMessage(nextStep.text, "bot");
+        renderOptions(nextStep.options);
+      }, 400);
+    }
+  }
+
+  function executeWhatsAppRedirect(cleanMessage) {
+    const phone = "34698686436";
+    const url = `https://wa.me/${phone}?text=${encodeURIComponent(cleanMessage)}`;
+    window.open(url, "_blank");
+  }
+
+});
 

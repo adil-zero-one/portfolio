@@ -11,6 +11,7 @@
     rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/css/flag-icons.min.css">
+
   <style>
     /* fix nav-links vertical alignment */
     .nav-links {
@@ -62,6 +63,10 @@
       font-weight: 700;
     }
   </style>
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 </head>
 
 <body>
@@ -474,6 +479,15 @@
     <div class="modal-content">
       <span class="close-btn">&times;</span>
       <iframe id="doc-frame" src="" frameborder="0"></iframe>
+    </div>
+  </div>
+
+  <div id="chat-container" class="chat-closed">
+    <button id="chat-toggle">💬 Habla con mi Asistente</button>
+    <div id="chat-box">
+      <div id="chat-header">Asistente de Adil</div>
+      <div id="chat-messages"></div>
+      <div id="chat-options"></div>
     </div>
   </div>
 
