@@ -364,7 +364,8 @@ nav {
     border-radius: 8px;
     width: 340px;
     box-shadow: 0 0 60px rgba(59, 130, 246, 0.08);
-    animation: fadeLeft 0.8s 0.3s var(--transition-premium) both, kineticFloat 6s ease-in-out infinite alternate;
+    animation: fadeLeft .8s .3s ease both;
+    animation-delay: 0.4s;
 }
 
 .code-bar {
@@ -1253,13 +1254,17 @@ footer span {
 
 @keyframes fadeLeft {
     from {
+        /* scale: 0.6; */
+        border-radius: 80%;
         opacity: 0;
         transform: translate(24px, -50%);
+        box-shadow: 4px 4px 160px red;
+        transform: translate(240px, -50%);
     }
 
     to {
         opacity: 1;
-        transform: translate(0, -50%);
+        transform: translate(0, -50%)
     }
 }
 
@@ -1590,4 +1595,40 @@ footer span {
 
 .reveal-group>*:nth-child(6) {
     transition-delay: 0.40s;
+}
+
+.pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+
+.pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .72rem;
+    padding: .3rem .8rem;
+    border-radius: 2px;
+    transition: transform .15s;
+}
+
+.pill:hover {
+    transform: translateY(-1px)
+}
+
+.pill-blue {
+    background: rgba(59, 130, 246, 0.12);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    color: #7eb3f7
+}
+
+.pill-gold {
+    background: rgba(201, 168, 76, 0.1);
+    border: 1px solid rgba(201, 168, 76, 0.3);
+    color: var(--gold)
+}
+
+.pill-green {
+    background: rgba(40, 202, 65, 0.08);
+    border: 1px solid rgba(40, 202, 65, 0.25);
+    color: #7ee787
 }
